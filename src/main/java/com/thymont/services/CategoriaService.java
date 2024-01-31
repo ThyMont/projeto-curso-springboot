@@ -3,10 +3,12 @@ package com.thymont.services;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.thymont.domain.Categoria;
 import com.thymont.repositories.CategoriaRepository;
+import com.thymont.services.exceptions.DataIntegrityException;
 import com.thymont.services.exceptions.ObjectNotFoundException;
 
 @Service
@@ -28,5 +30,13 @@ public class CategoriaService {
 
 	public Categoria update(Categoria obj) {
 		return repo.save(obj);
+	}
+
+	public void delete(Integer id) {
+		try {
+			repo.deleteById(id);
+		} catch (DataIntegrityViolationException e) {
+			throw new DataIntegrityException("Não é possível excluir uma categoria que possua produtos");
+		}
 	}
 }
