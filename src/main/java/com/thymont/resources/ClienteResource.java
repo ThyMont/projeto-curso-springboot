@@ -20,6 +20,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.thymont.domain.Cliente;
 import com.thymont.dto.ClienteDTO;
+import com.thymont.dto.ClienteNewDTO;
 import com.thymont.services.ClienteService;
 
 import jakarta.validation.Valid;
@@ -38,7 +39,7 @@ public class ClienteResource {
 	}
 	
 	@PostMapping
-	public ResponseEntity<Void> insert(@Valid @RequestBody ClienteDTO objDTO){
+	public ResponseEntity<Void> insert(@Valid @RequestBody ClienteNewDTO objDTO){
 		
 		Cliente obj = service.fromDTO(objDTO);		
 		obj = service.insert(obj);
