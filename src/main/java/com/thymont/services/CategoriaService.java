@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import com.thymont.domain.Categoria;
+import com.thymont.dto.CategoriaDTO;
 import com.thymont.repositories.CategoriaRepository;
 import com.thymont.services.exceptions.DataIntegrityException;
 import com.thymont.services.exceptions.ObjectNotFoundException;
@@ -52,5 +53,9 @@ public class CategoriaService {
 		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
 		return repo.findAll(pageRequest);
 
+	}
+	
+	public Categoria fromDTO (CategoriaDTO dto) {
+		return new Categoria(dto.getId(), dto.getNome());
 	}
 }
