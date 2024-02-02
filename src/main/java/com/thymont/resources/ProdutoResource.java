@@ -1,15 +1,20 @@
 package com.thymont.resources;
 
-import java.util.Optional;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.thymont.domain.Produto;
+import com.thymont.dto.ProdutoDTO;
+import com.thymont.resources.exception.URLNumberFormatException;
+import com.thymont.resources.utils.URL;
 import com.thymont.services.ProdutoService;
 
 @RestController
@@ -20,11 +25,29 @@ public class ProdutoResource {
 	private ProdutoService service;
 	
 	@GetMapping(value="/{id}")
-	public ResponseEntity<?> procuraPorId(@PathVariable Integer id) {
-		Optional<Produto> categoria = service.buscar(id);
-		if (categoria.isPresent()) {
-			return ResponseEntity.ok().body(categoria);			
+	public ResponseEntity<Produto> find(@PathVariable Integer id) {
+		Produto produto = service.find(id);
+		return ResponseEntity.ok().body(produto);
+	}
+	
+	@GetMapping
+	public ResponseEntity<Page<ProdutoDTO>> findPage(
+			@RequestParam(value="nome", defaultValue="") String nome,
+			@RequestParam(value="categorias", defaultValue="") String categorias,
+			@RequestParam(value="page", defaultValue="0") Integer page,
+			@RequestParam(value="linesPerPage", defaultValue="24")Integer linesPerPage,
+			@RequestParam(value="orderBy", defaultValue="nome")String orderBy, 
+			@RequestParam(value="direction", defaultValue="ASC")String direction) {
+		
+		String nomeDecoded = URL.decodeParam(nome);
+		List<Integer> ids;
+		try {
+			ids = URL.decodeIntList(categorias);
+		}catch (NumberFormatException e) {
+			throw new URLNumberFormatException("Formato inválido para categorias", e.getCause());
 		}
-		return ResponseEntity.notFound().build();
+		Page<Produto> list = service.search(nomeDecoded ,ids, page, linesPerPage, orderBy, direction);
+		Page<ProdutoDTO> listDTO = list.map(obj -> new ProdutoDTO(obj));
+		return ResponseEntity.ok().body(listDTO);
 	}
 }
